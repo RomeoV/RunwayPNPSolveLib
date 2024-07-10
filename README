@@ -1,7 +1,6 @@
 ## Workflow
 
 ### Making the C library
-We have already done this and uploaded the library, but it might not work with your machine.
 Here's how you can generate the library. Takes 10 minutes or so.
 ```julia
 $ julia --project=.
