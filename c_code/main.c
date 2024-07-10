@@ -4,9 +4,6 @@
 // Julia headers (for initialization and gc commands)
 #include "julia_init.h"
 #include "runwaypnpsolve.h"
-/* #include "librunwaypnpsolve.h" */
-
-size_t len = 10;
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +15,6 @@ int main(int argc, char *argv[])
                          0., 0., 0.,
                          0., 0., 0.};
 
-    double truepos[3] = {-4000., 10., 400.};
 
     double rwylength = 3500.0;  // m
     double rwywidth = 61.0;  // m
@@ -28,15 +24,16 @@ int main(int argc, char *argv[])
                               rwylength, -rwywidth / 2, 0.0};
 
     // we got these from the julia code
+    // double truepos[3] = {-4000., 10., 400.};
     double measuredprojs[2*4] = {
-        73.36956521739131, -724.6376811594204,
-        -37.13768115942029, -724.6376811594204,
-        -19.806763285024154, -386.47342995169083,
-        39.130434782608695, -386.47342995169083
+	   74.01856336432996, -731.0475394007898,
+	  -37.466186394290474, -731.0475394007898,
+	  -19.98196607695492, -389.8920210137545,
+	   39.476567127642646, -389.8920210137545
     };
 
     int n_rwycorners = 4;
-    ret = predict_pose_c_interface(dst_pos, dst_cov, truepos,
+    ret = predict_pose_c_interface(dst_pos, dst_cov,
                                    rwycorners, n_rwycorners,
                                    measuredprojs);
     if (ret == 0) {
@@ -56,7 +53,7 @@ int main(int argc, char *argv[])
         }
         printf("]\n");
     } else {
-        printf("fail :(");
+        printf("fail :(\n");
     }
 
     // Cleanup and gracefully exit

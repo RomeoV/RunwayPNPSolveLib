@@ -48,13 +48,13 @@ end
 
 Base.@ccallable function predict_pose_c_interface(
         dst_pos_ptr::Ptr{Float64}, dst_cov_ptr::Ptr{Float64},
-        truepos_ptr::Ptr{Float64},
         rwycorners_ptr::Ptr{Float64}, n_rwycorners::Cint,
         measuredprojs_ptr::Ptr{Float64})::Cint
     try
-        predict_pose(dst_pos_ptr, dst_cov_ptr, truepos_ptr, rwycorners_ptr,
+        predict_pose(dst_pos_ptr, dst_cov_ptr, rwycorners_ptr,
                      n_rwycorners, measuredprojs_ptr)
-    catch
+    catch e
+	@show e
         return 1
     end
     return 0
@@ -62,12 +62,12 @@ end
 
 function predict_pose(
         dst_pos_ptr::Ptr{Float64}, dst_cov_ptr::Ptr{Float64},
-        truepos_ptr::Ptr{Float64},
         rwycorners_ptr::Ptr{Float64}, n_rwycorners::Cint,
         measuredprojs_ptr::Ptr{Float64})
 
-    truepos = XYZ(unsafe_wrap(Vector{Float64}, truepos_ptr, 3))*m
-    posprior = ustrip.(m, truepos) + MvNormal(zeros(3), Diagonal([1000.0^2, 200^2, 100^2]))
+    # only used for initialization
+    posprior_mean = XYZ(-4010.0m, 9.0m, 350.0m)
+    posprior = ustrip.(m, posprior_mean) + MvNormal(zeros(3), Diagonal([100.0^2, 20^2, 10^2]))
     truerot = RotXYZ(0,0,0)
 
     rwycorners_flat = unsafe_wrap(Vector{Float64}, rwycorners_ptr, 3*n_rwycorners)
@@ -77,14 +77,9 @@ function predict_pose(
     measuredprojs = [ImgProj(measuredprojs_flat[(1:2) .+ offset])*pxl
                      for offset in 0:2:(2*n_rwycorners-1)]
 
-    trueprojs = project.([CamTransform(truerot, truepos)], rwycorners)
     noisedistrs = [MvNormal(zeros(2), 1*(I(2)))
                    for _ in eachindex(rwycorners)]
     noisemodel = UncorrGaussianNoiseModel(noisedistrs)
-    #Σ = [if i==j; 1; elseif ((i - j) % 2 == 0); 0.7; else; 0; end
-    #     for i in 1:8, j in 1:8]
-    #D = MvNormal(zeros(8), 2*I(8)*Σ)
-    #noisemodel = CorrGaussianNoiseModel(D)
 
     # estlin  = LinearApproxEstimator( solvealg=mksimplenewtonraphson, solveargs=(; maxiters=100))
     estlin  = LinearApproxEstimator( solvealg=mksimplenewtonraphson, solveargs=(;maxiters=10_000))

@@ -39,7 +39,7 @@ measuredprojs_flat = ustrip.(pxl, vcat(Vector.(measuredprojs)...))
 measuredprojs_ptr = unsafe_convert(Ptr{Float64}, measuredprojs_flat) 
 
 n_rwycorners = convert(Cint, length(rwycorners))
-RunwayPNPSolveLibrary.predict_pose_c_interface(dst_pos_ptr, dst_cov_ptr, truepos_ptr,
+RunwayPNPSolveLibrary.predict_pose_c_interface(dst_pos_ptr, dst_cov_ptr,
                          rwycorners_ptr, n_rwycorners,
                          measuredprojs_ptr)
 #Cint, (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Cint, Ptr{Float64}))
