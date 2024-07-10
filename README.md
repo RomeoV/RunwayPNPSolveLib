@@ -28,8 +28,15 @@ chmod +x compile_and_run
 
 Either will yield
 ```bash
-$ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../RunwayPNPSolveLibrary_compiled/lib ./main 
-
+$ ./compile_and_run
+success
+Array elements: -4000.00 10.00 400.00 
+Covar elements: [
+279.33 -0.63 -25.05 
+-0.63 0.12 0.06 
+-25.05 0.06 2.36 
+]
 ```
+which effectively solves the problem and writes the results into a c-array.
 
 Good luck!
